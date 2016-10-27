@@ -47,7 +47,8 @@ class Investigate(object):
             "sample":               "sample/{}",
             "sample_artifacts":     "sample/{}/artifacts",
             "sample_connections":   "sample/{}/connections",
-            "sample_samples":       "sample/{}/samples"
+            "sample_samples":       "sample/{}/samples",
+            "score":                "domains/score/"
         }
         self._auth_header = {"Authorization": "Bearer " + self.api_key}
 
@@ -294,3 +295,20 @@ class Investigate(object):
         params = {'limit': limit, 'offset': offset}
 
         return self.get_parse(uri, params)
+
+    def _get_score(self, domain):
+        uri = urlparse.urljoin(self._uris['score'], domain)
+        return self.get_parse(uri)
+
+    def _post_score(self, domains):
+        return self.post_parse(self._uris['score'], json.dumps(domains))
+
+    def score(self, domains):
+        '''Return an object representing health score of given domains '''
+        
+        if type(domains) is str:
+            return self._get_score(domains)
+        elif type(domains) is list:
+            return self._post_score(domains)
+        else:
+            raise Investigate.DOMAIN_ERR
